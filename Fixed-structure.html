@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <title>Fixed Map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <!--    1.1.  Include the reference to the Mapbox JavaScript here in the <head> of the page  -->
+      <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
+      
+    <!--    1.2 Include the reference to the Mapbox CSS here in the <head> of the page  -->
+      <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
+
+    <style>
+        /* 1.4 Insert the CSS code here between the <style> tags */
+        body { margin:50px; padding:0; }
+        #map1 { position:relative; height:300px; width:50%;}
+        #map2 { position:relative; height:300px; width:50%;}
+        #map3 { position:relative; height:300px; width:50%;}
+        
+        /* 2.5.2 Insert additional CSS code here between the <style> tags */
+
+    </style>
+  </head>
+
+  <body>
+        <!-- 1.3 Insert the div for the structure of the page here in the <body> of the page -->
+      <hr>
+      <h1> Map 1: </h1>
+            <div id='map1'></div>
+      <h1> Map 2:</h1>
+            <div id='map2'></div>
+      <h1> Map 3:</h1>
+            <div id='map3'></div>
+
+        <script>
+            /* Insert the JavaScript within the <script> tags, within the body */
+            // 2.1 Start with the Mapbox access token
+            mapboxgl.accessToken = 'pk.eyJ1IjoiY2xlZnR3aWNoIiwiYSI6ImNsZzVmanV4ajAyNXkzZm1qb29rdnN0N2oifQ.GZm3FtE4id-_SfLDC2qlkw'; //  Put your access token between the single quotes.
+
+            // 2.2 Then initialize the first map
+            var map1 = new mapboxgl.Map({
+                container: 'map1', // id of a div on your page, where the map will be inserted
+                style: 'mapbox://styles/mapbox/outdoors-v12', // stylesheet location
+                center: [-122.6788, 45.5212], // starting position [lng, lat]. Location: Portland, OR
+                zoom: 11 // starting zoom
+            });
+
+            // 2.3 Add any other variables (such as popups and markers) to the first map
+            var popup1 = new mapboxgl.Popup()
+                .setText('House of Vintage!');
+
+            var marker1 = new mapboxgl.Marker({color:'red'})
+                .setLngLat([-122.63076, 45.51235]) // starting position [lng, lat]
+                .setPopup(popup1) //add the popup named "popup" to this marker 
+                .addTo(map1); // add it to the map with the ID "map
+            
+            var popup_layer_location1 = new mapboxgl.Popup({
+               closeOnClick: true, anchor: 'top-right'
+           })
+
+            // 2.4 Add arguments to disable the map interactivity here
+            // Disable drag and zoom handlers.
+            map1.dragPan.disable();
+            map1.scrollZoom.disable();
+            map1.boxZoom.disable();
+            map1.dragRotate.disable();
+            map1.keyboard.disable();
+            map1.doubleClickZoom.disable();
+            map1.touchZoomRotate.disable();
+            map1.touchZoomRotate.disableRotation();
+
+
+            // 2.5.3 Then initialize the 2nd map
+            var map2 = new mapboxgl.Map({
+                container: 'map2', // id of a div on your page, where the map will be inserted
+                style: 'mapbox://styles/mapbox/outdoors-v12', // stylesheet location
+                center: [-118.11016, 34.12456], // starting position [lng, lat]. Location: San Marino, CA
+                zoom: 11 // starting zoom
+            });
+
+            // 2.5.4 Add any other variables (such as popups and markers) to the second map
+            var popup2 = new mapboxgl.Popup()
+            .setText('The Huntington Library, Art Museum, and Botanical Gardens!');
+            
+            var marker2 = new mapboxgl.Marker({color:'blue'})
+                .setLngLat([-118.11531, 34.13110]) // starting position [lng, lat]
+                .setPopup(popup2) //add the popup to the marker
+                .addTo(map2); // id it to the map with the ID *map2*
+    
+           var popup_layer_location2 = new mapboxgl.Popup({
+               closeOnClick: true, anchor: 'top-right'
+           })
+
+            // 2.5.5 Add arguments to disable the second map's interactivity here
+            // Disable drag and zoom handlers. 
+            map2.dragPan.disable();
+            map2.scrollZoom.disable();
+            map2.boxZoom.disable();
+            map2.dragRotate.disable();
+            map2.keyboard.disable();
+            map2.doubleClickZoom.disable();
+            map2.touchZoomRotate.disable();
+            map2.touchZoomRotate.disableRotation();
+            
+            // Then initialize the 3rd map
+            var map3 = new mapboxgl.Map({
+                container: 'map3', // id of a div on your page, where the map will be inserted
+                style: 'mapbox://styles/mapbox/outdoors-v12', // stylesheet location
+                center: [-117.17062, 32.75370], // starting position [lng, lat]. Location: San Diego, CA
+                zoom: 11 // starting zoom
+            });
+
+            // Add any other variables (such as popups and markers) to the third map
+            var popup3 = new mapboxgl.Popup()
+            .setText('Liberty Station NTC Park!');
+            
+            var marker3 = new mapboxgl.Marker({color:'green'})
+                .setLngLat([-117.21300, 32.73469]) // starting position [lng, lat]
+                .setPopup(popup3) //add the popup to the marker
+                .addTo(map3); // id it to the map with the ID *map3*
+            
+            var popup_layer_location3 = new mapboxgl.Popup({
+               closeOnClick: true, anchor: 'bottom-right'
+           })
+
+            // Add arguments to disable the third map's interactivity here
+            // Disable drag and zoom handlers. 
+            map3.dragPan.disable();
+            map3.scrollZoom.disable();
+            map3.boxZoom.disable();
+            map3.dragRotate.disable();
+            map3.keyboard.disable();
+            map3.doubleClickZoom.disable();
+            map3.touchZoomRotate.disable();
+            map3.touchZoomRotate.disableRotation();
+
+        </script>
+  </body>
+</html>
