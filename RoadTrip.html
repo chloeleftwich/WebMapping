@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+ <html>
+ <head>
+     <meta charset='utf-8' />
+     <title>Jeff's Road Trip</title>
+     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
+     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
+		
+     <!-- JS and CSS for the swipe plugin -->
+     <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js'></script>
+     <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css' type='text/css' />
+     
+    <!--   Link to Google font-->
+      <link rel="preconnect" href="https://fonts.gstatic.com">
+      <link href="https://fonts.googleapis.com/css2?family=Martel&display=swap" rel="stylesheet">
+     
+     <!-- Reference to Boostrap (CSS Framework for developing responsive websites) -->
+     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+     
+     <style>
+        /* CSS code between the <style> tags */
+        body { margin:0; padding:0; }
+        .map { position:absolute; top:0; bottom:0; width:100%; }
+         
+        #title { z-index: 9999; 
+         background-color:whitesmoke;
+        color: black;
+         opacity: 90%; 
+         text-align: center
+         }
+         
+         /* Overrides the pop-up width slightly bigger min-width than the default Mapbox CSS*/
+         .mapboxgl-popup {
+            min-width: 325px;
+        }
+
+        /* Insert the CSS for the image here */
+        .popupImage{
+            width:100%;
+        }
+        
+        .mapboxgl-popup {
+            min-width: 325px;
+            font-family: 'Times New Roman', sans-serif;
+        } 
+         
+        /*  stlye for paragraph tags */
+         p {
+             color: white;
+         }
+         
+         /* style for heading level 4 tags */
+         h4 {
+             color: white;
+             margin-left: 10px;
+         }
+         
+         /*  style for items with the class "LegendContainer" */
+         .LegendContainer {
+             position: absolute;
+             bottom: 40px;
+             left: 60px;
+             z-index: 2;
+             width: 300px;
+             height: 40px;
+             background: rgba(80, 80, 80, .75);
+             border-radius: 7px;
+         }
+         
+         /*  style for items with the class "descriptionPanel" */
+         .descriptionPanel {
+             position: absolute;
+             bottom: 40px;
+             right: 20px;
+             z-index: 2;
+             width: 350px;
+             height: 50px;
+             background: rgba(80, 80, 80, .75);
+             transition: width 2s, height 2s;
+             overflow: hidden;
+             border-radius: 3px;
+             cursor:pointer;
+         }
+         
+         /*  style for items with the class "descriptionPanel" when active */
+         .LegendContainer:active {
+             width: 240px;
+             height: 150px;
+         }
+         
+         /* style for items with the class "legendItem" */
+         .legendItem {
+             margin: 0px;
+             padding-left: 2px;
+             display:inline-block;
+             margin:auto;
+             transform: translate(30%, 50%);
+         }
+         
+         /* style for items with the class "layerDescription" */
+         .layerDescription {
+             color: white;
+             padding-left: 10px;
+         }
+         
+        /* Bright green "Spring Green" color on coolors.co*/
+         .FirstLeg{
+             color:#5EFC8D;
+         }
+         
+         /* Bright pink "Razzle dazzle rose" color on coolors.co*/
+         .SecondLeg {
+             color:#FF3CC7; 
+         }
+
+         
+         /* style for items with the class "chevron" */
+         .chevron {
+             position: relative;
+             margin-left: 45%;
+             font-size: x-large;
+             color: white;
+         }
+         
+         /* The CSS for the "Fly" buttons  */
+        .fly {
+            display: inline-block; /* displays over the map */
+            position: absolute; /* displays over the map */
+            bottom: 90px;
+            left: 60px;
+            margin: 0px auto; 
+            width: 20%;  /* width of parent div */
+            padding: 10px;
+            border-style: solid;
+            border-color: whitesmoke;
+            border-radius: 3px; /* rounded corners */
+            font-size: 1em;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            background: rgba(80, 80, 80, .75);
+            cursor:pointer;
+        }
+         
+      </style>
+        
+ </head>
+ <body>
+     
+     <div id="comparison-container">
+      		<div id='FirstLeg' class='map'></div>  <!-- div for first leg map div -->
+  		</div>
+     
+    <!--  Insert the tile div here (part V) -->
+         <div id='title'>
+     		<h1>Road Trip!</h1>
+     		<h2>By: Chloe Leftwich</h2>
+     </div>
+
+      <!-- Map description panel -->
+   <div class="descriptionPanel" id="descriptionPanel" style="height: 250px;">
+       <span onClick=panelSelect() id="glyph" class="chevron glyphicon glyphicon-chevron-down"></span>
+       <hr/>
+       <h4>MEET JEFF!</h4>
+       <p style="margin-left: 20px; margin-right: 20px;">
+           My step-dad, Jeff, loves road trips and motorcycles. In 2017 he decided to combine the two loves into one, setting off on a cross country motorcycle trip from Connecticut to California. This is a map showing notable stops along his trip. Each point shows a highlight form his point of view.
+       </p>
+   </div>
+     
+   <!-- Map legend panel -->
+   <div class="LegendContainer">
+       <div class="legendItem">
+           <span class="FirstLeg">&#11044;</span>
+           <span class="layerDescription">First Half</span>
+       </div>
+       <div class="legendItem">
+           <span class="SecondLeg">&#11044;</span>
+           <span class="layerDescription">Second Half</span>
+       </div>
+   </div>
+     
+    <!--  Insert the button elements here  -->
+    <button class='fly' id='StartTripButton'>Start Road Trip</button>
+     
+     <script>
+         //add Mapbox access token and map variable here
+         mapboxgl.accessToken = 'pk.eyJ1IjoiY2xlZnR3aWNoIiwiYSI6ImNsZzVmanV4ajAyNXkzZm1qb29rdnN0N2oifQ.GZm3FtE4id-_SfLDC2qlkw';
+         
+        // First leg map
+         var FirstLegMap = new mapboxgl.Map({
+             container: 'FirstLeg', // first leg map div 
+             style: 'mapbox://styles/mapbox/dark-v10', // Mapbox dark style 
+             center: [-95.6738, 35.0560], // starting position [lng, lat] at Eufaula Lake, Oklahoma
+             zoom: 3.8 // starting zoom 
+         });
+         
+         FirstLegMap.on('load', function() {
+             FirstLegMap.addLayer({
+                 id: 'First Leg Data',
+                 type: "line",
+                source: {
+                 type: 'vector',
+                 url: 'mapbox://cleftwich.a68dgj9t'  //input your tileset ID url
+                },
+                 'source-layer': 'First_Leg-0unlcl', //input your source layer name
+                 paint: {
+                     'line-color': '#5EFC8D',
+                 }
+             });
+         
+            FirstLegMap.addLayer({
+                     id: 'Second Leg Data',
+                     type: "line",
+                    source: {
+                     type: 'vector',
+                     url: 'mapbox://cleftwich.3yfri5ee'  //input your tileset ID url
+                    },
+                     'source-layer': 'Second_Leg-2kj69m', //input your source layer name
+                     paint: {
+                         'line-color': '#FF3CC7',
+                     }
+                 });
+             
+         });
+         
+        /***  LISTENERS  ***/
+        // Add a 'Listener' to the button element with the ID 'StartButton'.
+        document.getElementById('StartTripButton').addEventListener('click', function () {
+            map.jumpTo({
+                center:[-122.6788,45.5212], 
+                zoom: 9
+            });
+        }); 
+
+         
+        /***  POPUPS  ***/
+        // Popup for marker 1  
+        var popup1_content = '<h3>Stop #1: Hartford County, CT</h3><br>';
+        popup1_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955570055_3e26f36a2d_n.jpg"></img>';
+     
+        popup1_content += '<h5>Flew from Los Angeles International Airport. Arrived at Bradley International Airport with motorcycle bags and gear.</h5><br>';
+        
+         var popup1 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'top-right' })
+            .setHTML(popup1_content);
+         
+         // Popup for marker 2  
+        var popup2_content = '<h3>Stop #2: MAX BMW, CT</h3><br>';
+        popup2_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955638673_e21715c327_n.jpg"></img>';
+        popup2_content += '<h5>After picking up bags from airport terminal, headed to MAX BMW South Windsor to pick up motorcycle.</h5><br>';
+     
+         var popup2 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'top-right' })
+            .setHTML(popup2_content);
+      
+         // Popup for marker 3  
+        var popup3_content = '<h3>Stop #3: Hampton, CT</h3><br>';
+        popup3_content += '<img width="300px" src="https://live.staticflickr.com/65535/52954590792_0f71732cab_n.jpg"></img>';
+        popup3_content += '<h5>Visited old house in Connecticut before departing on road trip back to California.</h5><br>';
+         
+         var popup3 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'top-right' })
+            .setHTML(popup3_content);
+         
+         // Popup for marker 4  
+        var popup4_content = '<h3>Stop #4: Bridgeport Ferry, CT</h3><br>';
+        popup4_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955638763_8422e85657_n.jpg"></img>';
+        popup4_content += '<h5>Took the ferry to Long Island, New York. <a href="https://www.88844ferry.com/default.aspx">Booked ferry ticket here!</a></h5><br>'; 
+         
+         var popup4 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'right' })
+            .setHTML(popup4_content);
+         
+         // Popup for marker 5  
+        var popup5_content = '<h3>Stop #5: Port Jefferson, NY</h3><br>';
+        popup5_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955638698_2df317107f_n.jpg"></img>';
+        popup5_content += '<h5>Arrived by ferry at Port Jefferson. Now in New York!</h5><br>';
+        
+         var popup5 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'right' })
+            .setHTML(popup5_content);
+         
+         // Popup for marker 6  
+        var popup6_content = '<h3>Stop #6: Washington DC</h3><br>';
+        popup6_content += '<img width="200px" src="https://live.staticflickr.com/65535/52955327479_20e801b59c_n.jpg"></img>';
+        popup6_content += '<h5>Rode through New York, New Jersey, the tip of Delaware, and through Maryland to get to Washington, D.C.</h5><br>';
+        
+         var popup6 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'right' })
+            .setHTML(popup6_content);
+         
+         // Popup for marker 7  
+        var popup7_content = '<h3>Stop #7: Blue Ridge Parkway, VA</h3><br>';
+        popup7_content += '<img width="200px" src="https://live.staticflickr.com/65535/52954590807_4a77ee23c9_n.jpg"></img>';
+        popup7_content += '<h5>Began Blue Ridge Parkway route. It is the longest linear park route in America, running 469 miles though Virginia and North Carolina.</h5><br>';
+        
+         var popup7 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'right' })
+            .setHTML(popup7_content);
+         
+         // Popup for marker 8  
+        var popup8_content = '<h3>Stop #8: Blue Ridge Parkway, VA</h3><br>';
+        popup8_content += '<img width="300px" src="https://live.staticflickr.com/65535/52954590817_f6aba6f0dc_n.jpg"></img>';
+        popup8_content += '<h5>Second stop along Blue Ridge Parkway. Blue Ridge is a National Parkway and All-American Road in the US, noted for the scenic beauty (seen here).</h5><br>';
+        
+         var popup8 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'right' })
+            .setHTML(popup8_content);
+         
+        // Popup for marker 9  
+        var popup9_content = '<h3>Stop #9: Blue Ridge Parkway, VA</h3><br>';
+        popup9_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955570100_4d6b18befc_n.jpg"></img>';
+        popup9_content += '<h5>Third stop along Blue Ridge Parkway. What is a roadtrip without a (great) shot of the ride!</h5><br>';
+     
+         var popup9 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'right' })
+            .setHTML(popup9_content);
+         
+         // Popup for marker 10  
+        var popup10_content = '<h3>Stop #10: Blowing Rock, NC</h3><br>';
+        popup10_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955327144_81cbefe9b2_n.jpg"></img>';
+        popup10_content += '<h5><a href="https://www.88844ferry.com/default.aspx">The Blowing Rock</a> is the oldest travel attraction in North Carolina and the marking of the end of Blue Ridge Parkway. It is deemed "the only place in the world where snow falls upside down."</h5><br>';
+     
+         var popup10 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'right' })
+            .setHTML(popup10_content);
+         
+         // Popup for marker 11 
+        var popup11_content = '<h3>Stop #11: Tellico Plains, TN</h3><br>';
+        popup11_content += '<img width="200px" src="https://live.staticflickr.com/65535/52955191001_02b92d12b9_n.jpg"></img>';
+     
+        popup11_content += '<h5>The Cherohala Skyway is a 43-mile Natinal Senic Byway and Nation Forest Byway that connects Robbinsville, NC to Tellico Plains, TN.</h5><br>';
+        
+         var popup11 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'right' })
+            .setHTML(popup11_content);
+         
+         // Popup for marker 12 
+        var popup12_content = '<h3>Stop #12: Memphis, TN</h3><br>';
+        popup12_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955638873_47eaf21de4_n.jpg"></img>';
+         
+        popup12_content += '<h5>Beale Street is located in Downtown Memphis and is known for being the Home of the Blues. Fun fact, after 9pm anyone under 21 needs to be accompanied by a parent or guardian. After 11pm everyone on Beale Street must be 21 or older and possess a legal ID that will be checked when you enter the street.</h5><br>';
+        
+         var popup12 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'right' })
+            .setHTML(popup12_content);
+         
+         // Popup for marker 13 
+        var popup13_content = '<h3>Stop #13: Clarksville, AR</h3><br>';
+        popup13_content += '<img width="300px" src="https://live.staticflickr.com/65535/52954590772_7c26d1b4d5_n.jpg"></img>';
+         
+        popup13_content += '<h5>Pig Trail Senic Byway is one of the top 10 motorcycle routes in the US. Of course the road trip had to take this route!</h5><br>';
+        
+         var popup13 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'right' })
+            .setHTML(popup13_content);
+         
+         // Popup for marker 14 
+        var popup14_content = '<h3>Stop #14: Nowhere, OK</h3><br>';
+        popup14_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955570285_c3403a27f9_n.jpg"></img>'; 
+        popup14_content += '<h5>A fun name for a town. Stopped somewhere in Nowhere.</h5><br>';
+        
+         var popup14 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'right' })
+            .setHTML(popup14_content);
+         
+         // Popup for marker 15 
+        var popup15_content = '<h3>Stop #15: Oklahoma City, OK</h3><br>';
+        popup15_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955327219_05fb89de0d_n.jpg"></img>';
+        popup15_content += '<h5>In Oklahoma! Officially rode 2,088 miles so far. Only 1,567 miles left to go!</h5><br>';
+        
+         var popup15 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'left' })
+            .setHTML(popup15_content);
+         
+         // Popup for marker 16 
+        var popup16_content = '<h3>Stop #16: Amarillo, TX</h3><br>';
+        popup16_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955639038_ee7fb184ee_n.jpg"></img>';
+        popup16_content += '<h5>Cadillac Ranch is a public art  installation and sculpture comprised of 10 Cadillacs. It was created in 1974 by Chip Lord, Hudson Marques, and Doug Michels, who were a part of the Ant Farm art group. Can you spot my "You Should Be Here"?</h5><br>';
+     
+         var popup16 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'left' })
+            .setHTML(popup16_content);
+         
+         // Popup for marker 17 
+        var popup17_content = '<h3>Stop #17: Santa Fe, NM</h3><br>';
+        popup17_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955327379_656391634f_n.jpg"></img>';
+        popup17_content += '<h5>The capital of New Mexico famous for Pueblo-style architecture and as a creative arts hotbed. Santa Fe was founded as a Spanish colony in 1610.</h5><br>';
+     
+         var popup17 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'left' })
+            .setHTML(popup17_content);
+         
+         // Popup for marker 18 
+        var popup18_content = '<h3>Stop #18: Albuquerque, NM</h3><br>';
+        popup18_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955191051_5f2ca5bd42_n.jpg"></img>';
+        popup18_content += '<h5>Quick stop in Albuquerque! Motel sign of the place I stayed at.</h5><br>';
+     
+         var popup18 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'left' })
+            .setHTML(popup18_content);
+         
+         // Popup for marker 19 
+        var popup19_content = '<h3>Stop #19: Petrified Forest National Park, AZ</h3><br>';
+        popup19_content += '<img width="300px" src="https://live.staticflickr.com/65535/52954590982_6c84bab82d_n.jpg"></img>';
+        popup19_content += '<h5>Definatly a must see attraction in Arizona. It is one of the most continuous sections of Triassic-aged rocks anywhere in the world. Find tickets <a href="https://www.nps.gov/pefo/index.htm">here!</a></h5><br>'; 
+     
+         var popup19 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'left' })
+            .setHTML(popup19_content);
+         
+         // Popup for marker 20 
+        var popup20_content = '<h3>Stop #20: Tucson, AZ</h3><br>';
+        popup20_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955191031_f372315abd_n.jpg"></img>';
+        popup20_content += '<h5>Roughly 503 miles left in the road trip!</h5><br>';
+     
+         var popup20 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'left' })
+            .setHTML(popup20_content);
+         
+         // Popup for marker 21 
+        var popup21_content = '<h3>Stop #21: Yuma, AZ</h3><br>';
+        popup21_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955191091_cda6dd9642_n.jpg"></img>';
+        popup21_content += '<h5>Took the 8 instead of the 10 to check out Yuma in southwest Arizona. It is known as the "sunniest city on earth" according to the Guinness World Records.</h5><br>';
+     
+         var popup21 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'left' })
+            .setHTML(popup21_content);
+         
+         // Popup for marker 22 
+        var popup22_content = '<h3>Stop #22: San Marino, CA</h3><br>';
+        popup22_content += '<img width="300px" src="https://live.staticflickr.com/65535/52955570235_ef8cb8e568_n.jpg"></img>';
+        popup22_content += '<h5>After a total of 3,655 miles, my motorcycle road trip is complete! Home sweet home!</h5><br>';
+     
+         var popup22 = new mapboxgl.Popup({ minWidth:'300px', anchor: 'left' })
+            .setHTML(popup22_content);
+         
+        /***  MARKERS  ***/
+        // Marker 1 - Hartford County, CT
+        var marker1 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-72.68798,41.93331])
+            .setPopup(popup1)
+            .addTo(FirstLegMap);
+         
+        // Marker 2 - MAX BMW, CT
+        var marker2 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-72.60013,41.84887])
+            .setPopup(popup2)
+            .addTo(FirstLegMap);
+         
+        // Marker 3 - Hampton, CT (Connecticut House)
+        var marker3 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-72.04397,41.73445])
+            .setPopup(popup3)
+            .addTo(FirstLegMap);
+         
+        // Marker 4 - Bridgeport Ferry, CT
+        var marker4 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-73.18532,41.17444])
+            .setPopup(popup4)
+            .addTo(FirstLegMap);
+
+        // Marker 5 - Port Jefferson, NY
+        var marker5 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-73.06918,40.94662])
+            .setPopup(popup5)
+            .addTo(FirstLegMap);
+         
+        // Marker 6 - Washington DC
+        var marker6 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-77.03693,38.90748])
+            .setPopup(popup6)
+            .addTo(FirstLegMap);
+         
+        // Marker 7 - Blue Ridge Parkway 1, VA
+        var marker7 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-78.19896,38.89389])
+            .setPopup(popup7)
+            .addTo(FirstLegMap);
+         
+        // Marker 8 - Blue Ridge Parkway 2, VA
+        var marker8 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-78.99424,37.87211])
+            .setPopup(popup8)
+            .addTo(FirstLegMap);
+
+        // Marker 9 - Blue Ridge Parkway 3, VA
+        var marker9 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-80.47261,36.67122])
+            .setPopup(popup9)
+            .addTo(FirstLegMap);
+         
+        // Marker 10 - Blowing Rock, NC
+        var marker10 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-81.67636, 36.13436])
+            .setPopup(popup10)
+            .addTo(FirstLegMap);
+         
+        // Marker 11 - Tellico Plains, TN
+        var marker11 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-83.96586, 35.31669])
+            .setPopup(popup11)
+            .addTo(FirstLegMap);
+         
+        // Marker 12 - Memphis, TN
+        var marker12 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-90.01873,35.18841])
+            .setPopup(popup12)
+            .addTo(FirstLegMap);
+         
+        // Marker 13 - Clarksville, AR
+        var marker13 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-93.81105, 35.69124])
+            .setPopup(popup13)
+            .addTo(FirstLegMap);
+         
+        // Marker 14 - Nowhere, OK
+        var marker14 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-96.04655, 35.44956])
+            .setPopup(popup14)
+            .addTo(FirstLegMap);
+         
+        // Marker 15 - Oklahoma City, OK
+        var marker15 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-97.5164,35.46756])
+            .setPopup(popup15)
+            .addTo(FirstLegMap);
+         
+        // Marker 16 - Amarillo, TX
+        var marker16 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-101.955, 35.18718])
+            .setPopup(popup16)
+            .addTo(FirstLegMap);
+         
+        // Marker 17 - Santa Fe, NM
+        var marker17 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-105.93783, 35.68688])
+            .setPopup(popup17)
+            .addTo(FirstLegMap);
+         
+        // Marker 18 - Albuquerque, NM
+        var marker18 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-106.65934, 35.09734])
+            .setPopup(popup18)
+            .addTo(FirstLegMap);
+         
+        // Marker 19 - Petrified Forest National Park, AZ
+        var marker19 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-109.73968, 35.08349])
+            .setPopup(popup19)
+            .addTo(FirstLegMap);
+         
+        // Marker 20 - Tucson, AZ
+        var marker20 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-110.97417,32.25396])
+            .setPopup(popup20)
+            .addTo(FirstLegMap);
+         
+        // Marker 21 -  Yuma, AZ
+        var marker21 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-114.62758, 32.69265])
+            .setPopup(popup21)
+            .addTo(FirstLegMap);
+         
+         // Marker 22 - San Marino, CA (Home)
+        var marker22 = new mapboxgl.Marker({color:'#47DDFF'})
+            .setLngLat([-118.10625,34.12143])
+            .setPopup(popup22)
+            .addTo(FirstLegMap);
+         
+        // description interaction
+        var state = { panelOpen: true };
+
+        function panelSelect(e){
+             if(state.panelOpen){
+                 document.getElementById('descriptionPanel').style.height = '26px';
+                 document.getElementById('glyph').className = "chevron glyphicon glyphicon-chevron-up";
+                 state.panelOpen = false;
+             } else {
+                 document.getElementById('descriptionPanel').style.height = '250px';
+                 document.getElementById('glyph').className = "chevron glyphicon glyphicon-chevron-down";
+                 state.panelOpen = true;
+             }
+         };
+         
+        // Add zoom and rotation controls to the map.
+         const nav = new mapboxgl.NavigationControl();
+         FirstLegMap.addControl(nav, 'bottom-left');
+         
+     </script>
+
+     </body>
+ </html>
